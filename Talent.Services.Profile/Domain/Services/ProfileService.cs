@@ -166,6 +166,12 @@ namespace Talent.Services.Profile.Domain.Services
                         UpdateExperienceFromView(item, experience);
                         newExperience.Add(experience);
                     }
+                    //var newJob= new JobSeekingStatus
+                    //{
+                    //    Status = "Actively looking for a job",
+                    //    AvailableDate = DateTime.Now
+                    // };
+                  
 
                     //assigning values 
                     existingUser.Experience = newExperience;

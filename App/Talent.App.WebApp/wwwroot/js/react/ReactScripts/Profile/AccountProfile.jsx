@@ -17,6 +17,7 @@ import Experience from "./Experience.jsx";
 import { BodyWrapper, loaderData } from "../Layout/BodyWrapper.jsx";
 import { LoggedInNavigation } from "../Layout/LoggedInNavigation.jsx";
 import TalentStatus from "./TalentStatus.jsx";
+import moment from "moment";
 
 export default class AccountProfile extends React.Component {
   constructor(props) {
@@ -56,7 +57,7 @@ export default class AccountProfile extends React.Component {
         },
         jobSeekingStatus: {
           status: "",
-          availableDate: null
+          availableDate: moment()
         }
       },
       loaderData: loaderData
@@ -118,9 +119,11 @@ export default class AccountProfile extends React.Component {
 
   //updates component's state and saves data
   updateAndSaveData(newValues) {
-    console.log("data format", newValues);
+    // console.log("data format before", this.state.profileData);
 
     let newProfile = Object.assign({}, this.state.profileData, newValues);
+
+    //console.log("data format after", newProfile);
     this.setState(
       {
         profileData: newProfile
@@ -136,7 +139,7 @@ export default class AccountProfile extends React.Component {
   }
 
   saveProfile() {
-    //console.log("data before saving", this.state.profileData);
+    console.log("data before saving", this.state.profileData);
 
     var cookies = Cookies.get("talentAuthToken");
     $.ajax({
@@ -247,7 +250,7 @@ export default class AccountProfile extends React.Component {
                         //componentId="experience"
                       />
                     </FormItemWrapper>
-                    {/*<FormItemWrapper
+                    {/* <FormItemWrapper
                                             title='Education'
                                             tooltip='Add your educational background'
                                         >
@@ -264,29 +267,30 @@ export default class AccountProfile extends React.Component {
                                                 certificateData={this.state.profileData.certifications}
                                                 updateProfileData={this.updateAndSaveData}
                                             />
-                                        </FormItemWrapper>
-                                        <FormItemWrapper
-                                            title='Visa Status'
-                                            tooltip='What is your current Visa/Citizenship status?'
-                                        >
-                                            <VisaStatus
-                                                visaStatus={this.state.profileData.visaStatus}
-                                                visaExpiryDate={this.state.profileData.visaExpiryDate}
-                                                updateProfileData={this.updateWithoutSave}
-                                                saveProfileData={this.updateAndSaveData}
-                                            />
-                                        </FormItemWrapper>
-                                        <FormItemWrapper
-                                            title='Status'
-                                            tooltip='What is your current status in jobseeking?'
-                                        >
-                                            <TalentStatus
-                                                status={this.state.profileData.jobSeekingStatus}
-                                                updateProfileData={this.updateWithoutSave}
-                                                saveProfileData={this.updateAndSaveData}
-                                            />
-                                        </FormItemWrapper>
-                                        <FormItemWrapper
+                                        </FormItemWrapper> */}
+                    <FormItemWrapper
+                      title="Visa Status"
+                      tooltip="What is your current Visa/Citizenship status?"
+                    >
+                      <VisaStatus
+                        visaStatus={this.state.profileData.visaStatus}
+                        visaExpiryDate={this.state.profileData.visaExpiryDate}
+                        //updateProfileData={this.updateWithoutSave}
+                        saveProfileData={this.updateAndSaveData}
+                      />
+                    </FormItemWrapper>
+                    <FormItemWrapper
+                      title="Status"
+                      tooltip="What is your current status in jobseeking?"
+                    >
+                      <TalentStatus
+                        status={this.state.profileData.jobSeekingStatus}
+                        //updateProfileData={this.updateWithoutSave}
+                        saveProfileData={this.updateForComponentId}
+                        componentId="jobSeekingStatus"
+                      />
+                    </FormItemWrapper>
+                    {/*     <FormItemWrapper
                                             title='Profile Photo'
                                             tooltip='Please upload your profile photo'
                                             hideSegment={true}

@@ -41,14 +41,14 @@ export default class Experience extends React.Component {
 
   handleChange(event) {
     const data = Object.assign({}, this.state.experienceList);
-    console.log("experienceList", this.state.experienceList);
+    //console.log("experienceList", this.state.experienceList);
     //   data[event.target.name] = event.target.value;
 
     //   this.setState({
     //     newExperience: data
     //   });
-    console.log("value", event.target.value);
-    console.log("name", event.target.name);
+    //console.log("value", event.target.value);
+    //console.log("name", event.target.name);
   }
 
   openNewExperienceSection() {
@@ -73,7 +73,7 @@ export default class Experience extends React.Component {
 
   render() {
     let experienceList = this.props.experienceData;
-    console.log("experienceList", experienceList);
+    //console.log("experienceList", experienceList);
 
     // console.log("id", experienceList[0].id);
 
@@ -178,7 +178,7 @@ class NewExperience extends React.Component {
 
   addExperience() {
     this.props.addNewExperience(this.state.newExperience);
-    console.log("newExperience", this.state.newExperience);
+    // console.log("newExperience", this.state.newExperience);
   }
 
   render() {

@@ -29,8 +29,8 @@ export default class Skill extends React.Component {
     //   this.setState({
     //     newSkill: data
     //   });
-    console.log("value", event.target.value);
-    console.log("name", event.target.name);
+    //console.log("value", event.target.value);
+    //console.log("name", event.target.name);
   }
 
   openNewSkillSection() {
@@ -57,7 +57,7 @@ export default class Skill extends React.Component {
 
   render() {
     let skillList = this.props.skillData;
-    console.log("skillList", skillList);
+    //console.log("skillList", skillList);
 
     // console.log("id", skillList[0].id);
 
@@ -69,10 +69,10 @@ export default class Skill extends React.Component {
           <Table.Cell>{skill.name}</Table.Cell>
           <Table.Cell>{skill.level}</Table.Cell>
           <Table.Cell>
-            <Button size="mini" icon floated="right">
+            <Button type="button" size="mini" icon floated="right">
               <Icon name="pencil" />
             </Button>
-            <Button size="mini" icon floated="right">
+            <Button type="button" size="mini" icon floated="right">
               <Icon name="cancel" />
             </Button>
           </Table.Cell>
