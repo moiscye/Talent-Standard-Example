@@ -20,6 +20,7 @@ using MongoDB.Driver;
 using Talent.Services.Profile.Domain.Contracts;
 using Talent.Common.Aws;
 using Talent.Services.Profile.Models;
+using System.Drawing;
 
 namespace Talent.Services.Profile.Controllers
 {
@@ -137,11 +138,15 @@ namespace Talent.Services.Profile.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "talent")]
         public async Task<IActionResult> GetLanguages()
         {
-            //Your code here;
+            ////Your code here;
             //var userId = _userAppContext.CurrentUserId;
             //var language = await _userLanguageRepository.GetByIdAsync(userId);
             //return Json(new { Success = true, data = language });
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            var userId = _userAppContext.CurrentUserId;
+            var user = await _userRepository.GetByIdAsync(userId);
+            
+            return Json(new { Username = user.Languages });
 
         }
 
@@ -245,20 +250,69 @@ namespace Talent.Services.Profile.Controllers
 
         [HttpGet("getProfileImage")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public ActionResult getProfileImage(string Id)
+        public async Task<IActionResult>  getProfileImage(string Id)
         {
-            var profileUrl = _documentService.GetFileURL(Id, FileType.ProfilePhoto);
-            //Please do logic for no image available - maybe placeholder would be fine
-            return Json(new { profilePath = profileUrl });
+            try
+            {
+                var userId = _userAppContext.CurrentUserId;
+                var userProfile = await _profileService.GetTalentProfile(userId);
+                if (userProfile == null)
+                {
+                    return Json(new { Success = false, data = "can not find the profile of the id." });
+                }
+                else if ((userProfile.ProfilePhoto == null) || (userProfile.ProfilePhotoUrl == null))
+                {
+                    return Json(new { Success = false, data = "Profile photo is null." });
+                }
+                else if (userProfile.ProfilePhoto != Id)
+                {
+                    //return Json(new { Success = false, data = "can't find the Profile photo with the id." });
+                }
+                var profileUrl = _documentService.GetFileURL(Id, FileType.ProfilePhoto);
+                return Json(new { Success = true, profilePath = profileUrl });
+            }
+            catch (Exception e)
+            {
+                return Json(new { Success = false, data = "error" });
+            }
         }
 
         [HttpPost("updateProfilePhoto")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "talent")]
         public async Task<ActionResult> UpdateProfilePhoto()
         {
-            //Your code here;
-            throw new NotImplementedException();
+            /**
+             * new code
+             */
+
+            try
+            {
+                var file = Request.Form.Files[0];
+                var userId = _userAppContext.CurrentUserId;
+                var url = await _profileService.UpdateTalentPhoto(userId, file);
+                return url == false ? Json(new { Success = false }) : Json(new { Success = true });
+            }
+            catch (Exception e)
+            {
+                return Json(new { Data = "error" });
+            }
+
+
+            /**
+             * old code
+             */
+            //if (ModelState.IsValid)
+            //{
+            //    if (await _profileService.UpdateTalentPhoto( _userAppContext.CurrentUserId, body))
+            //    {
+            //        return Json(new { Success = true });
+            //    }
+            //}
+            //return Json(new { Success = false });         
+
         }
+
+        
 
         [HttpPost("updateTalentCV")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "talent")]

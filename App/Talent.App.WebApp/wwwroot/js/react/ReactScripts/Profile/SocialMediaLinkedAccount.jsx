@@ -109,11 +109,11 @@ export default class SocialMediaLinkedAccount extends React.Component {
     return (
       <div className="row">
         <div className="ui sixteen wide column">
-          <a className="ui linkedin button" href={linkedIn}>
+          <a className="ui linkedin button" href={linkedIn} target="_blank">
             <i className="linkedin icon" />
             LinkedIn
           </a>
-          <a className="ui github button" href={github}>
+          <a className="ui github button" href={github} target="_blank">
             <i className="github icon" />
             Github
           </a>

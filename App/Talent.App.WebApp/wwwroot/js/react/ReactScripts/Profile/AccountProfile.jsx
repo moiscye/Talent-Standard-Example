@@ -101,16 +101,6 @@ export default class AccountProfile extends React.Component {
   //updates component's state without saving data
   updateWithoutSave(newValues) {
     let newProfile = Object.assign({}, this.state.profileData, newValues);
-    // newProfile["experience"] = [
-    //   {
-    //     company: "La Trobe Uni",
-    //     position: "FullStack Developer",
-    //     responsibilities: "RestFul Api's, so on, so forth",
-    //     start: new Date(),
-    //     end: new Date()
-    //   }
-    // ];
-    // console.log("new profile", newProfile);
 
     this.setState({
       profileData: newProfile
@@ -229,15 +219,15 @@ export default class AccountProfile extends React.Component {
                     >
                       <Language
                         languageData={this.state.profileData.languages}
-                        updateProfileData={this.updateAndSaveData}
-                        // componentId="languages"
+                        updateProfileData={this.updateForComponentId}
+                        componentId="languages"
                       />
                     </FormItemWrapper>
                     <FormItemWrapper title="Skills" tooltip="List your skills">
                       <Skill
                         skillData={this.state.profileData.skills}
-                        updateProfileData={this.updateAndSaveData}
-                        //componentId="skills"
+                        updateProfileData={this.updateForComponentId}
+                        componentId="skills"
                       />
                     </FormItemWrapper>
                     <FormItemWrapper
@@ -246,8 +236,8 @@ export default class AccountProfile extends React.Component {
                     >
                       <Experience
                         experienceData={this.state.profileData.experience}
-                        updateProfileData={this.updateAndSaveData}
-                        //componentId="experience"
+                        updateProfileData={this.updateForComponentId}
+                        componentId="experience"
                       />
                     </FormItemWrapper>
                     {/* <FormItemWrapper
@@ -290,18 +280,21 @@ export default class AccountProfile extends React.Component {
                         componentId="jobSeekingStatus"
                       />
                     </FormItemWrapper>
-                    {/*     <FormItemWrapper
-                                            title='Profile Photo'
-                                            tooltip='Please upload your profile photo'
-                                            hideSegment={true}
-                                        >
-                                            <PhotoUpload
-                                                imageId={this.state.profileData.profilePhotoUrl}
-                                                updateProfileData={this.updateWithoutSave}
-                                                savePhotoUrl='http://localhost:60290/profile/profile/updateProfilePhoto'
-                                            />
-                                        </FormItemWrapper>
-                                        <FormItemWrapper
+                    <FormItemWrapper
+                      title="Profile Photo"
+                      tooltip="Please upload your profile photo"
+                      // hideSegment={true}
+                    >
+                      <PhotoUpload
+                        // imageId={this.state.profileData.profilePhotoUrl}
+                        // updateProfileData={this.updateWithoutSave}
+                        // savePhotoUrl="http://localhost:60290/profile/profile/updateProfilePhoto"
+                        imageId={this.state.profileData.profilePhotoUrl}
+                        updateProfileData={this.updateWithoutSave}
+                        savePhotoUrl="http://localhost:60290/profile/profile/updateProfilePhoto"
+                      />
+                    </FormItemWrapper>
+                    {/*   <FormItemWrapper
                                             title='Profile Video'
                                             tooltip='Upload a brief self-introduction video'
                                             hideSegment={true}

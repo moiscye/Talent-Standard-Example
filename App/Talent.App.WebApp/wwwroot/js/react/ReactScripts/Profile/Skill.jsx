@@ -13,28 +13,22 @@ export default class Skill extends React.Component {
 
     this.state = {
       skillList: details,
-      showNewSkillSection: false
+      showNewSkillSection: false,
+      showEditSkillSection: false,
+      skillData: { name: "", level: "" }
     };
-    this.handleChange = this.handleChange.bind(this);
+
     this.openNewSkillSection = this.openNewSkillSection.bind(this);
+    this.openEditSkillSection = this.openEditSkillSection.bind(this);
     this.closeNewSkillSection = this.closeNewSkillSection.bind(this);
+    this.closeEditSkillSection = this.closeEditSkillSection.bind(this);
     this.addNewSkill = this.addNewSkill.bind(this);
-  }
-
-  handleChange(event) {
-    const data = Object.assign({}, this.state.skillList);
-    console.log("skillList", this.state.skillList);
-    //   data[event.target.name] = event.target.value;
-
-    //   this.setState({
-    //     newSkill: data
-    //   });
-    //console.log("value", event.target.value);
-    //console.log("name", event.target.name);
+    this.editSkill = this.editSkill.bind(this);
+    this.deleteSkill = this.deleteSkill.bind(this);
   }
 
   openNewSkillSection() {
-    const details = Object.assign({}, this.props.details);
+    //const details = Object.assign({}, this.props.details);
     this.setState({
       showNewSkillSection: true
     });
@@ -46,21 +40,85 @@ export default class Skill extends React.Component {
     });
   }
 
+  openEditSkillSection(name) {
+    const currentValue = this.props.skillData.find(d => d.name === name);
+
+    this.setState({
+      showEditSkillSection: true,
+      skillData: currentValue
+    });
+  }
+
+  closeEditSkillSection() {
+    this.setState({
+      showEditSkillSection: false
+    });
+  }
+
   addNewSkill(newItem) {
+    let isValid = true;
+    let errorMessage;
+    //verify there are not empty fields
+    if (newItem.name === "" || newItem.level === "") {
+      isValid = false;
+      errorMessage = "Please enter Skill & Level";
+    }
+
+    //verify the skill is not already in the records
+    if (this.props.skillData.find(d => d.name === newItem.name)) {
+      isValid = false;
+      errorMessage = "The Skill is already in the records. Try Another Skill!";
+    }
+
+    if (!isValid) {
+      return TalentUtil.notification.show(errorMessage, "error", null, null);
+    }
+
     const list = this.props.skillData;
     list.push(newItem);
-    this.props.updateProfileData(list);
-    console.log("list before saving ", list);
 
+    this.props.updateProfileData(this.props.componentId, list);
     this.closeNewSkillSection();
+  }
+
+  editSkill(newItem) {
+    if (newItem.name === "" || newItem.level === "") {
+      return TalentUtil.notification.show(
+        "Please enter Skill & Level",
+        "error",
+        null,
+        null
+      );
+    }
+
+    const newSkillList = [...this.props.skillData];
+    const index = newSkillList.findIndex(skill => skill.id === newItem.id);
+
+    const { name: oldName, level: oldLevel } = newSkillList[index];
+    //if the values are the same dont update
+    if (oldName === newItem.name && oldLevel === newItem.level) {
+      return TalentUtil.notification.show(
+        "Same data as before",
+        "error",
+        null,
+        null
+      );
+    }
+
+    newSkillList[index] = newItem;
+    this.props.updateProfileData(this.props.componentId, newSkillList);
+    this.closeEditSkillSection();
+  }
+
+  deleteSkill(itemToDelete) {
+    let newSkillList = [...this.props.skillData];
+
+    newSkillList = newSkillList.filter(skill => skill.id !== itemToDelete);
+    this.props.updateProfileData(this.props.componentId, newSkillList);
   }
 
   render() {
     let skillList = this.props.skillData;
-    //console.log("skillList", skillList);
-
-    // console.log("id", skillList[0].id);
-
     let tableData = null;
 
     if (skillList != "") {
@@ -68,13 +126,13 @@ export default class Skill extends React.Component {
         <Table.Row key={skill.id}>
           <Table.Cell>{skill.name}</Table.Cell>
           <Table.Cell>{skill.level}</Table.Cell>
-          <Table.Cell>
-            <Button type="button" size="mini" icon floated="right">
-              <Icon name="pencil" />
-            </Button>
-            <Button type="button" size="mini" icon floated="right">
-              <Icon name="cancel" />
-            </Button>
+          <Table.Cell textAlign="right">
+            <Icon
+              name="pencil"
+              onClick={() => this.openEditSkillSection(skill.name)}
+            />
+
+            <Icon name="cancel" onClick={() => this.deleteSkill(skill.id)} />
           </Table.Cell>
         </Table.Row>
       ));
@@ -87,6 +145,11 @@ export default class Skill extends React.Component {
             // handleChange={this.handleChange}
             addNewSkill={this.addNewSkill}
             closeNewSkillSection={this.closeNewSkillSection}
+            skillData=""
+            buttonContent="Add"
+            buttonBasic={false}
+            buttonColor="black"
+            buttonColorCancel="grey"
           />
         )}
         <Table fixed>
@@ -108,7 +171,23 @@ export default class Skill extends React.Component {
               </Table.HeaderCell>
             </Table.Row>
           </Table.Header>
+        </Table>
+        <Table.Row>
+          {this.state.showEditSkillSection && (
+            <NewSkill
+              // handleChange={this.handleChange}
+              addNewSkill={this.addNewSkill}
+              closeNewSkillSection={this.closeEditSkillSection}
+              skillData={this.state.skillData}
+              buttonContent="Update"
+              buttonBasic={true}
+              buttonColor="blue"
+              buttonColorCancel="red"
+            />
+          )}
+        </Table.Row>
 
+        <Table>
           <Table.Body>{tableData}</Table.Body>
         </Table>
       </div>
@@ -120,7 +199,9 @@ class NewSkill extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      newSkill: { name: "", level: "" }
+      newSkill: this.props.skillData
+        ? this.props.skillData
+        : { name: "", level: "" }
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -161,12 +242,23 @@ class NewSkill extends React.Component {
         <Select
           placeholder="Skill Level"
           options={skillOptions}
+          value={this.state.newSkill.level}
           onChange={this.handleChange}
         />
-        <Button type="button" color="black" onClick={this.addSkill}>
-          Add
+        <Button
+          type="button"
+          basic={this.props.buttonBasic}
+          color={this.props.buttonColor}
+          onClick={this.addSkill}
+        >
+          {this.props.buttonContent}
         </Button>
-        <Button type="button" onClick={this.props.closeNewSkillSection}>
+        <Button
+          basic={this.props.buttonBasic}
+          color={this.props.buttonColorCancel}
+          type="button"
+          onClick={this.props.closeNewSkillSection}
+        >
           Cancel
         </Button>
       </React.Fragment>

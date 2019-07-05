@@ -62,7 +62,7 @@ export default class TalentStatus extends React.Component {
         <label className="large">Current Status</label>
         <br />
         <br />
-        <Form>{optionSection}</Form>
+        {optionSection}
       </div>
     );
   }

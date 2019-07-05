@@ -13,28 +13,22 @@ export default class Language extends React.Component {
 
     this.state = {
       languageList: details,
-      showNewLanguageSection: false
+      showNewLanguageSection: false,
+      showEditLanguageSection: false,
+      languageData: { name: "", level: "" }
     };
-    this.handleChange = this.handleChange.bind(this);
+
     this.openNewLanguageSection = this.openNewLanguageSection.bind(this);
+    this.openEditLanguageSection = this.openEditLanguageSection.bind(this);
     this.closeNewLanguageSection = this.closeNewLanguageSection.bind(this);
+    this.closeEditLanguageSection = this.closeEditLanguageSection.bind(this);
     this.addNewLanguage = this.addNewLanguage.bind(this);
-  }
-
-  handleChange(event) {
-    const data = Object.assign({}, this.state.languageList);
-    console.log("languageList", this.state.languageList);
-    //   data[event.target.name] = event.target.value;
-
-    //   this.setState({
-    //     newLanguage: data
-    //   });
-    console.log("value", event.target.value);
-    console.log("name", event.target.name);
+    this.editLanguage = this.editLanguage.bind(this);
+    this.deleteLanguage = this.deleteLanguage.bind(this);
   }
 
   openNewLanguageSection() {
-    const details = Object.assign({}, this.props.details);
+    // const details = Object.assign({}, this.props.details);
     this.setState({
       showNewLanguageSection: true
     });
@@ -46,33 +40,107 @@ export default class Language extends React.Component {
     });
   }
 
+  openEditLanguageSection(name) {
+    const currentValue = this.props.languageData.find(d => d.name === name);
+
+    this.setState({
+      showEditLanguageSection: true,
+      languageData: currentValue
+    });
+  }
+
+  closeEditLanguageSection() {
+    this.setState({
+      showEditLanguageSection: false
+    });
+  }
+
   addNewLanguage(newItem) {
+    let isValid = true;
+    let errorMessage;
+    //verify there are not empty fields
+    if (newItem.name === "" || newItem.level === "") {
+      isValid = false;
+      errorMessage = "Please enter Language & Level";
+    }
+
+    //verify the language is not already in the records
+    if (this.props.languageData.find(d => d.name === newItem.name)) {
+      isValid = false;
+      errorMessage =
+        "The Language is already in the records. Try Another Language!";
+    }
+
+    if (!isValid) {
+      return TalentUtil.notification.show(errorMessage, "error", null, null);
+    }
+
     const list = this.props.languageData;
     list.push(newItem);
-    this.props.updateProfileData(list);
+
+    this.props.updateProfileData(this.props.componentId, list);
     this.closeNewLanguageSection();
+  }
+
+  editLanguage(newItem) {
+    if (newItem.name === "" || newItem.level === "") {
+      return TalentUtil.notification.show(
+        "Please enter Language & Level",
+        "error",
+        null,
+        null
+      );
+    }
+
+    const newLanguageList = [...this.props.languageData];
+    const index = newLanguageList.findIndex(
+      language => language.id === newItem.id
+    );
+
+    const { name: oldName, level: oldLevel } = newLanguageList[index];
+    //if the values are the same dont update
+    if (oldName === newItem.name && oldLevel === newItem.level) {
+      return TalentUtil.notification.show(
+        "Same data as before",
+        "error",
+        null,
+        null
+      );
+    }
+
+    newLanguageList[index] = newItem;
+    this.props.updateProfileData(this.props.componentId, newLanguageList);
+    this.closeEditLanguageSection();
+  }
+
+  deleteLanguage(itemToDelete) {
+    let newLanguageList = [...this.props.languageData];
+
+    newLanguageList = newLanguageList.filter(
+      language => language.id !== itemToDelete
+    );
+    this.props.updateProfileData(this.props.componentId, newLanguageList);
   }
 
   render() {
     let languageList = this.props.languageData;
-    // console.log("languageList", languageList);
-
-    // console.log("id", languageList[0].id);
 
     let tableData = null;
 
     if (languageList != "") {
-      tableData = languageList.map(language => (
-        <Table.Row key={language.id}>
+      tableData = languageList.map((language, index) => (
+        <Table.Row key={index}>
           <Table.Cell>{language.name}</Table.Cell>
           <Table.Cell>{language.level}</Table.Cell>
-          <Table.Cell>
-            <Button size="mini" icon floated="right">
-              <Icon name="pencil" />
-            </Button>
-            <Button size="mini" icon floated="right">
-              <Icon name="cancel" />
-            </Button>
+          <Table.Cell textAlign="right">
+            <Icon
+              name="pencil"
+              onClick={() => this.openEditLanguageSection(language.name)}
+            />
+            <Icon
+              name="cancel"
+              onClick={() => this.deleteLanguage(language.id)}
+            />
           </Table.Cell>
         </Table.Row>
       ));
@@ -82,9 +150,13 @@ export default class Language extends React.Component {
       <div className="ui sixteen wide column">
         {this.state.showNewLanguageSection && (
           <NewLanguage
-            // handleChange={this.handleChange}
             addNewLanguage={this.addNewLanguage}
             closeNewLanguageSection={this.closeNewLanguageSection}
+            languageData=""
+            buttonContent="Add"
+            buttonBasic={false}
+            buttonColor="black"
+            buttonColorCancel="grey"
           />
         )}
         <Table fixed>
@@ -106,7 +178,24 @@ export default class Language extends React.Component {
               </Table.HeaderCell>
             </Table.Row>
           </Table.Header>
+        </Table>
+        <Table.Row>
+          <Table.Cell colSpan="3">
+            {this.state.showEditLanguageSection && (
+              <NewLanguage
+                addNewLanguage={this.editLanguage}
+                closeNewLanguageSection={this.closeEditLanguageSection}
+                languageData={this.state.languageData}
+                buttonContent="Update"
+                buttonBasic={true}
+                buttonColor="blue"
+                buttonColorCancel="red"
+              />
+            )}
+          </Table.Cell>
+        </Table.Row>
 
+        <Table>
           <Table.Body>{tableData}</Table.Body>
         </Table>
       </div>
@@ -118,7 +207,9 @@ class NewLanguage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      newLanguage: { name: "", level: "" }
+      newLanguage: this.props.languageData
+        ? this.props.languageData
+        : { name: "", level: "" }
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -158,14 +249,26 @@ class NewLanguage extends React.Component {
         />
 
         <Select
+          //overflow="inherit"
           placeholder="Language Level"
+          value={this.state.newLanguage.level}
           options={languageOptions}
           onChange={this.handleChange}
         />
-        <Button type="button" color="black" onClick={this.addLanguage}>
-          Add
+        <Button
+          type="button"
+          basic={this.props.buttonBasic}
+          color={this.props.buttonColor}
+          onClick={this.addLanguage}
+        >
+          {this.props.buttonContent}
         </Button>
-        <Button type="button" onClick={this.props.closeNewLanguageSection}>
+        <Button
+          basic={this.props.buttonBasic}
+          color={this.props.buttonColorCancel}
+          type="button"
+          onClick={this.props.closeNewLanguageSection}
+        >
           Cancel
         </Button>
       </React.Fragment>

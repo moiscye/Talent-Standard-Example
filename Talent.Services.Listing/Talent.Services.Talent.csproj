@@ -37,4 +37,6 @@
     <ProjectReference Include="..\Talent.Services.Profile\Talent.Services.Profile.csproj" />
   </ItemGroup>
 
+  <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
+
 </Project>
