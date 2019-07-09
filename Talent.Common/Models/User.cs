@@ -23,6 +23,10 @@ namespace Talent.Common.Models
         public string Phone { get; set; }
         public string MobilePhone { get; set; }
         public bool IsMobilePhoneVerified { get; set; }
+        public string UserType { get; set; }
+
+        public string Talent { get; set; }
+       
 
         public Address Address { get; set; }
         public string Nationality { get; set; }

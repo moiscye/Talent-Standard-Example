@@ -14,6 +14,7 @@
 
   <PropertyGroup>
     <PublishWithAspNetCoreTargetManifest>false</PublishWithAspNetCoreTargetManifest>
+    <UserSecretsId>8a7d16f9-e529-45a7-a5f7-fcffed1fc311</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="images\" />

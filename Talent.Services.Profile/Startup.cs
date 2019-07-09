@@ -33,6 +33,16 @@ namespace Talent.Services.Profile
             Configuration = configuration;
         }
 
+        //public Startup(IHostingEnvironment env)
+        //{
+        //    var builder = new ConfigurationBuilder();
+
+        //    if (env.IsDevelopment())
+        //        builder.AddUserSecrets<Startup>();
+
+        //    Configuration = builder.Build();
+        //}
+
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.

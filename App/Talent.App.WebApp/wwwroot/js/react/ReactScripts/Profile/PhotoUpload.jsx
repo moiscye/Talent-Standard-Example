@@ -2,7 +2,7 @@
 import React, { Component } from "react";
 import Cookies from "js-cookie";
 import Dropzone from "react-dropzone";
-import { Button, Image, Grid } from "semantic-ui-react";
+import { Button, Image, Grid, Label } from "semantic-ui-react";
 //Optional Import
 
 import { Icon } from "semantic-ui-react";
@@ -162,21 +162,27 @@ export default class PhotoUpload extends Component {
 
   displayExistingPhoto() {
     return (
-      <Grid>
-        <Grid.Column>
-          <img
-            src={this.props.imageId}
-            size="medium"
-            circular={true}
-            onClick={() => this.refs.refImgChanged.click()}
-          />
-          <input
-            ref="refImgChanged"
-            hidden
-            type="file"
-            onChange={this.onImageChange}
-          />
-        </Grid.Column>
+      <Grid columns="equal">
+        <Grid.Row columns={2}>
+          <Grid.Column>
+            <h1>Profile Image</h1>
+          </Grid.Column>
+
+          <Grid.Column textAlign="right">
+            <img
+              style={{ height: "150px", borderRadius: "80%" }}
+              src={this.props.imageId}
+              onClick={() => this.refs.refImgChanged.click()}
+            />
+
+            <input
+              ref="refImgChanged"
+              hidden
+              type="file"
+              onChange={this.onImageChange}
+            />
+          </Grid.Column>
+        </Grid.Row>
       </Grid>
     );
   }

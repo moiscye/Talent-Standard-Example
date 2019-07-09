@@ -1461,3 +1461,8 @@ div.ReactTags__selected a.ReactTags__remove {
     margin-bottom: 10px;
 }
 /*Manage jobs - End*/
+
+.profile-picture{
+    width: 250px;
+    height: 250px;
+}

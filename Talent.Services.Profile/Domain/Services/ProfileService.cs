@@ -426,15 +426,79 @@ namespace Talent.Services.Profile.Domain.Services
 
         public async Task<bool> AddTalentVideo(string talentId, IFormFile file)
         {
-            //Your code here;
-            throw new NotImplementedException();
+            var fileExtension = Path.GetExtension(file.FileName);
+            List<string> acceptedExtensions = new List<string> { ".mp4", ".mov" };
+
+            if ((fileExtension != null && !acceptedExtensions.Contains(fileExtension.ToLower())) || (fileExtension == null))
+            {
+                return false;
+            }
+            try
+            {
+                var profile = (await _userRepository.Get(x => x.Id == talentId)).SingleOrDefault();
+
+                if (profile == null)
+                {
+                    return false;
+                }
+
+                var newFileName = await _fileService.SaveFile(file, FileType.UserVideo);
+
+                if (!string.IsNullOrWhiteSpace(newFileName))
+                {
+                    profile.VideoName = newFileName;
+                    //profile.video = await _fileService.GetFileURL(newFileName, FileType.UserVideo);
+                    profile.Videos.Add(new TalentVideo
+                    {
+                        FullVideoName = newFileName,
+                        DisplayVideoName = file.FileName,
+                        Tags = new List<string>()
+                    });
+                    await _userRepository.Update(profile);
+                    return true;
+                }
+                return false;
+            }
+            catch (MongoException e)
+            {
+
+                return false;
+            }
+            catch (ApplicationException e)
+            {
+                return false;
+            }
 
         }
 
         public async Task<bool> RemoveTalentVideo(string talentId, string videoName)
         {
-            //Your code here;
-            throw new NotImplementedException();
+            try
+            {
+                var deleteFile = await _fileService.DeleteFile(videoName, FileType.UserVideo);
+                if (deleteFile)
+                {
+                    var profile = (await _userRepository.Get(x => x.Id == talentId)).SingleOrDefault();
+                    if (profile == null)
+                    {
+                        return false;
+                    }
+                    var findItem = profile.Videos.SingleOrDefault(x => x.FullVideoName == videoName);
+                    if (findItem != null)
+                    {
+                        profile.Videos.Remove(findItem);
+                        await _userRepository.Update(profile);
+                        return true;
+                    }
+                    return false;
+                }
+                return false;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         public async Task<bool> UpdateTalentCV(string talentId, IFormFile file)
@@ -451,8 +515,54 @@ namespace Talent.Services.Profile.Domain.Services
 
         public async Task<IEnumerable<TalentSnapshotViewModel>> GetTalentSnapshotList(string employerOrJobId, bool forJob, int position, int increment)
         {
-            //Your code here;
-            throw new NotImplementedException();
+            try
+            {
+                var profile = await _employerRepository.GetByIdAsync(employerOrJobId);
+                var talentFeedList = _userRepository.Collection.Skip(position).Take(increment).AsEnumerable();
+               
+                if (profile != null)
+                {
+                    var result = new List<TalentSnapshotViewModel>();
+
+
+
+                    foreach (var item in talentFeedList)
+                    {
+                        var newItem = new TalentSnapshotViewModel();
+                        newItem.Id = item.Id;
+                        newItem.Name = item.LastName + ' ' + item.FirstName;
+                        newItem.PhotoId = item.ProfilePhotoUrl;
+                        newItem.VideoUrl = String.IsNullOrEmpty(item.VideoName) ? null : (await _fileService.GetFileURL(item.VideoName, FileType.UserVideo));
+                        newItem.CVUrl = String.IsNullOrEmpty(item.CvName) ? null : (await _fileService.GetFileURL(item.CvName, FileType.UserVideo));
+                        newItem.Summary = item.Summary;
+                        var recentExperience = item.Experience.OrderByDescending(x => x.End).FirstOrDefault();
+                        newItem.CurrentEmployment = (recentExperience != null) ? (recentExperience.Company + ' ' + recentExperience.Position)
+                            : "Not defined";
+                        newItem.Visa = item.VisaStatus;
+                        newItem.Level = "Not defined";
+                        if (item.Skills.Count != 0)
+                        {
+                            newItem.Skills = item.Skills.Select(x => x.Skill).ToList();
+                        }
+                        else
+                        {
+                            newItem.Skills = null;
+                        }
+                        result.Add(newItem);
+                    }
+
+                    return result;
+                }
+                return null;
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+
+
+
+
         }
 
         public async Task<IEnumerable<TalentSnapshotViewModel>> GetTalentSnapshotList(IEnumerable<string> ids)

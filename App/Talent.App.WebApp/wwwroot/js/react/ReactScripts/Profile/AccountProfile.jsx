@@ -283,7 +283,7 @@ export default class AccountProfile extends React.Component {
                     <FormItemWrapper
                       title="Profile Photo"
                       tooltip="Please upload your profile photo"
-                      // hideSegment={true}
+                      hideSegment={false}
                     >
                       <PhotoUpload
                         // imageId={this.state.profileData.profilePhotoUrl}
@@ -294,18 +294,26 @@ export default class AccountProfile extends React.Component {
                         savePhotoUrl="http://localhost:60290/profile/profile/updateProfilePhoto"
                       />
                     </FormItemWrapper>
-                    {/*   <FormItemWrapper
-                                            title='Profile Video'
-                                            tooltip='Upload a brief self-introduction video'
-                                            hideSegment={true}
-                                        >
-                                            <VideoUpload
-                                                videoName={this.state.profileData.videoName}
-                                                updateProfileData={this.updateWithoutSave}
-                                                saveVideoUrl={'http://localhost:60290/profile/profile/updateTalentVideo'}
-                                            />
-                                        </FormItemWrapper>
-                                        <FormItemWrapper
+                    <FormItemWrapper
+                      title="Profile Video"
+                      tooltip="Upload a brief self-introduction video"
+                      hideSegment={false}
+                    >
+                      <VideoUpload
+                        // videoName={this.state.profileData.videoName}
+                        // updateProfileData={this.updateWithoutSave}
+                        // saveVideoUrl={
+                        //   "http://localhost:60290/profile/profile/updateTalentVideo"
+                        // }
+                        videoName={this.state.profileData.videoName}
+                        videoUrl={this.state.profileData.videoUrl}
+                        updateProfileData={this.updateWithoutSave}
+                        saveVideoUrl={
+                          "http://localhost:60290/profile/profile/updateTalentVideo"
+                        }
+                      />
+                    </FormItemWrapper>
+                    {/*  <FormItemWrapper
                                             title='CV'
                                             tooltip='Upload your CV. Accepted files are pdf, doc & docx)'
                                             hideSegment={true}

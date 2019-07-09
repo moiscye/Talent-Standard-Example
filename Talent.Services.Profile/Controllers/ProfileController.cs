@@ -323,13 +323,71 @@ namespace Talent.Services.Profile.Controllers
             throw new NotImplementedException();
         }
 
+        [HttpGet("getProfileVideo")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> getProfileVideo(string Id)
+        {
+            try
+            {
+                var userId = _userAppContext.CurrentUserId;
+                var userProfile = await _profileService.GetTalentProfile(userId);
+                if (userProfile == null)
+                {
+                    return Json(new { Success = false, data = "can not find the profile of the id." });
+                }
+                else if ((userProfile.VideoName == null) || (userProfile.VideoUrl == null))
+                {
+                    return Json(new { Success = false, data = "Profile photo is null." });
+                }
+                else if (userProfile.VideoName != Id)
+                {
+                    return Json(new { Success = false, data = "can't find the Profile photo with the id." });
+                }
+                var profileUrl = _documentService.GetFileURL(Id, FileType.UserVideo);
+                return Json(new { Success = true, profilePath = profileUrl });
+            }
+            catch (Exception e)
+            {
+                return Json(new { Success = false, data = "error" });
+            }
+
+        }
+
         [HttpPost("updateTalentVideo")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "talent")]
         public async Task<IActionResult> UpdateTalentVideo()
         {
-            IFormFile file = Request.Form.Files[0];
-            //Your code here;
-            throw new NotImplementedException();
+            try
+            {
+                var file = Request.Form.Files[0];
+                var userId = _userAppContext.CurrentUserId;
+                var userProfile = await _profileService.GetTalentProfile(userId);
+                if (userProfile == null)
+                {
+                    return Json(new { Success = false, data = "can not find the profile of the id." });
+                }
+                else
+                {
+                    if (userProfile.VideoName != null)
+                    {
+                        bool removeOld = await _profileService.RemoveTalentVideo(userId, userProfile.VideoName);
+                        //if (!removeOld)
+                        //{
+                        //    return Json(new { Success = false, data = "can not delete the old video." });
+                        //}
+                    }
+                    bool addNew = await _profileService.AddTalentVideo(userId, file);
+                    if (!addNew)
+                    {
+                        return Json(new { Success = false, data = "can not add the new video." });
+                    }
+                    return Json(new { Success = true });
+                }
+            }
+            catch (Exception e)
+            {
+                return Json(new { Data = "error" });
+            }
         }
 
         [HttpGet("getInfo")]
@@ -501,13 +559,14 @@ namespace Talent.Services.Profile.Controllers
         }
 
         [HttpGet("getTalent")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "recruiter, employer")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "talent, recruiter, employer")]
         public async Task<IActionResult> GetTalentSnapshots(FeedIncrementModel feed)
         {
+
             try
             {
                 var result = (await _profileService.GetTalentSnapshotList(_userAppContext.CurrentUserId, false, feed.Position, feed.Number)).ToList();
-
+               
                 // Dummy talent to fill out the list once we run out of data
                 //if (result.Count == 0)
                 //{
@@ -524,12 +583,14 @@ namespace Talent.Services.Profile.Controllers
                 //            }
                 //        );
                 //}
-                return Json(new { Success = true, Data = result });
+                return Json(new { Success = true, Data = result,  TotalCount = _userRepository.Collection.Count() });
             }
             catch (Exception e)
             {
                 return Json(new { Success = false, e.Message });
             }
+
+
         }
         #endregion
 

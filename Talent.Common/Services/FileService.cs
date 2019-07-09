@@ -28,17 +28,17 @@ namespace Talent.Common.Services
         public async Task<string> GetFileURL(string id, FileType type)
         {
            
-            string fileURL = await Task.Run(() => string.Join("/", "http://localhost:60290/images", id));
-            return fileURL;
+            //string fileURL = await Task.Run(() => string.Join("/", "http://localhost:60290/images", id));
+            //return fileURL;
 
 
             /*
              * aws storage
              * 
              */
-            //string url = await _awsService.GetStaticUrl(id, "bucketName");
+            string url = await _awsService.GetStaticUrl(id, "picturestalentproject");
 
-
+            return url;
         }
 
         public async Task<string> SaveFile(IFormFile file, FileType type)
@@ -46,40 +46,45 @@ namespace Talent.Common.Services
             /**
             * local storage
             */
-            if (file == null || file.Length == 0)
-            {
-                return null;
-            }
-            var path = Path.Combine(Directory.GetCurrentDirectory(), _tempFolder, file.FileName);
-            try {
-                using (var stream = new FileStream(path, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
-                    return file.FileName;
-                }
-            }
-            catch (Exception e)
-            {
-                return "error";
-            }
-           
+            //if (file == null || file.Length == 0)
+            //{
+            //    return null;
+            //}
+            //var path = Path.Combine(Directory.GetCurrentDirectory(), _tempFolder, file.FileName);
+            //try {
+            //    using (var stream = new FileStream(path, FileMode.Create))
+            //    {
+            //        await file.CopyToAsync(stream);
+            //        return file.FileName;
+            //    }
+            //}
+            //catch (Exception e)
+            //{
+            //    return "error";
+            //}
+
 
 
             /**
              * aws code
              */
-            //String newFileName;
-            //String Bucket = "moisesfirstbucket";
-            //var extension = "." + file.FileName.Split('.')[file.FileName.Split('.').Length - 1];
-            //newFileName = Guid.NewGuid().ToString() + extension;
-            //if (await _awsService.PutFileToS3(newFileName, file.OpenReadStream(), Bucket, true))
-            //{
-            //    return newFileName;
-            //}
-            //return null;
+            String newFileName;
+            String Bucket = "picturestalentproject";
+            var extension = "." + file.FileName.Split('.')[file.FileName.Split('.').Length - 1];
+            newFileName = Guid.NewGuid().ToString() + extension;
+            try 
+            {
+                await _awsService.PutFileToS3(newFileName, file.OpenReadStream(), Bucket, true);
+                return newFileName;
+            }
+            catch(Exception e)
+            {
+                return null;
+            }
+            
 
 
-           
+
         }
 
         public async Task<bool> DeleteFile(string id, FileType type)
@@ -87,21 +92,21 @@ namespace Talent.Common.Services
             /**
              * local storage
              */
-            var path = Path.Combine(Directory.GetCurrentDirectory(), _tempFolder, id);
-            if (File.Exists(path))
-            {
-                await Task.Run(() => {
-                    File.Delete(path);
-                    return true;
-                });
-            }
-            return false;
+            //var path = Path.Combine(Directory.GetCurrentDirectory(), _tempFolder, id);
+            //if (File.Exists(path))
+            //{
+            //    await Task.Run(() => {
+            //        File.Delete(path);
+            //        return true;
+            //    });
+            //}
+            //return false;
 
 
             /**
              * aws storage
              */
-            //return await _awsService.RemoveFileFromS3(id, "moisesfirstbucket");
+            return await _awsService.RemoveFileFromS3(id, "picturestalentproject");
 
 
         }
